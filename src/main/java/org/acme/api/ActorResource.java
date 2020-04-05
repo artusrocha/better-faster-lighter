@@ -15,39 +15,41 @@ import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 @Path("/actor")
-//@RequestScoped
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class ActorResource {
 
 	@Inject
     private ActorService service;
 
     @GET
-	@Path("{shortname}")
-    @Produces({MediaType.APPLICATION_JSON})
-    public Actor getByShortname(@PathParam("shortname") String shortname) {
-        Optional<Actor> actorOp = service.findByShortname(shortname);
+	@Path("{id}")
+    public Actor getById(@PathParam("id") String id) {
+        Optional<Actor> actorOp = service.findById(id);
         return actorOp.isPresent() ? actorOp.get() : null;
 	}
+
+    @DELETE
+    @Path("{id}")
+    public Response deleteById(@PathParam("id") String id) {
+        Boolean deleted =
+                service.delete(id) ;
+        return Response.noContent().build();
+    }
     
 	@POST
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public Actor create(@RequestBody Actor actor) {
-        Optional<Actor> savedOp = service.create(actor);//.get() ;
+        Optional<Actor> savedOp = service.create(actor);
         return savedOp.isPresent() ? savedOp.get() : null;
     }
 	
 	@POST
 	@Path("/populate")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Consumes(MediaType.APPLICATION_JSON)
     public List<Actor> populate() {
         return service.populate() ;
     }
 	
     @GET
-    @Path("/all")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getAllPosts() {
         return Response.ok( this.service.getAll() ).build();
     }

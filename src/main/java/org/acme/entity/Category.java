@@ -1,9 +1,11 @@
 package org.acme.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
@@ -17,7 +19,10 @@ public class Category extends PanacheEntityBase implements Serializable {
 	
 	@Id
 	private String name;
-	
+
+	@OneToMany
+	private List<Attribute> values;
+
 	public Category() {}
 	
 	public Category(String name) {
@@ -32,4 +37,7 @@ public class Category extends PanacheEntityBase implements Serializable {
 		this.name = name;
 	}
 
+	public List<Attribute> getValues() {
+		return values;
+	}
 }

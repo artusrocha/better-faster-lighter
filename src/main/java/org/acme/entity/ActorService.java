@@ -25,27 +25,33 @@ public class ActorService {
 		continent.persist();
 		Category language = new Category("Language");
 		language.persist();
-		southAmerAttr.add( new Attribute(continent, "South America") );
-		southAmerAttr.add( new Attribute(language, "Spanish") );
-		southAmerAttr.stream().forEach( each -> { each.persist(); });
+		southAmerAttr.add( new Attribute(continent.getName(), "South America") );
+		southAmerAttr.add( new Attribute(language.getName(), "Spanish") );
+		southAmerAttr.stream().forEach( each -> each.persist() );
 		
 		List<Actor> actors = new ArrayList<>();
 		actors.add(new Actor("CO", "Colombia", southAmerAttr));
 		actors.add(new Actor("AR", "Argentina", southAmerAttr));
-		Actor.persist(actors);
+		repo.persist(actors);
 		return actors;
 	}
 
 	@Transactional
 	public Optional<Actor> create(Actor actor) {
-		repo.persistAndFlush(actor);
-		if(actor.isPersistent())
-			Optional.of( actor);
+		if ( ! repo.existsById( actor.getShortname() ) ) {
+			repo.persistAndFlush(actor);
+			return repo.findByIdOptional( actor.getShortname() );
+		}
 		return Optional.empty();
-			
 	}
 
-	public Optional<Actor> findByShortname(String shortname) {
-		return Optional.ofNullable( repo.findById(shortname));
+	public Optional<Actor> findById(String id) {
+		return repo.findByIdOptional(id);
+	}
+
+	@Transactional
+	public Boolean delete(String id) {
+		repo.deleteById(id);
+		return !repo.existsById(id);
 	}
 }

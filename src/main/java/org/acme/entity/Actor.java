@@ -7,10 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-
 @Entity
-public class Actor extends PanacheEntityBase implements Serializable {
+public class Actor implements Serializable {
 
     /**
 	 * 
