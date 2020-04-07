@@ -1,5 +1,6 @@
 config/
 .mvn/
+.envrc
 
 # Eclipse
 .project

@@ -1,4 +1,7 @@
-package org.acme.entity;
+package org.acme.entity.attribute;
+
+import org.acme.entity.category.Category;
+import org.acme.entity.category.CategoryService;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,6 +17,8 @@ public class AttributeService {
 
 	@Inject
 	private AttributeRepository repo;
+	@Inject
+	private CategoryService categoryService;
 
 	public List<Attribute> getAll() {
 		return repo.listAll();
@@ -21,7 +26,7 @@ public class AttributeService {
 
 	@Transactional
 	public Optional<Attribute> create(Attribute attribute) {
-		if ( ! repo.exists( attribute.getKeyName(), attribute.getValue() ) ) {
+		if ( ! repo.exists( attribute.getKey(), attribute.getValue() ) ) {
 			try{
 				repo.persist( attribute );
 				return Optional.ofNullable(attribute);
@@ -31,31 +36,21 @@ public class AttributeService {
 		return Optional.empty();
 	}
 
-	public Optional<Attribute> findById(String id) {
-		return repo.findByIdOptional(id);
-	}
-
 	@Transactional
-	public Boolean delete(String key, String value) {
+	public Boolean delete(Long id) {
 		try {
-			repo.deleteByKeyValue(key, value);
+			repo.delete(id);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return !repo.exists(key, value);
+		return !repo.exists(id);
 	}
 
-	@Transactional
-	public Boolean delete(UUID guid) {
-		try {
-			repo.deleteByGuid(guid);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return !repo.exists(guid);
+	public Optional<Attribute> findById(Long id) {
+		return repo.findByIdOptional (id);
 	}
 
-	public Optional<Attribute> findByGuid(UUID guid) {
-		return repo.findByGuid(guid);
+	public Optional<Attribute> findByValue(String v) {
+		return repo.findByValue(v);
 	}
 }

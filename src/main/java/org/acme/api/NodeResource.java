@@ -3,49 +3,48 @@ package org.acme.api;
 import java.util.List;
 import java.util.Optional;
 
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.acme.entity.Actor;
-import org.acme.entity.ActorService;
+import org.acme.entity.node.Node;
+import org.acme.entity.node.NodeService;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
-@Path("/actor")
+@Path("/node")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ActorResource {
+public class NodeResource {
 
 	@Inject
-    private ActorService service;
+    private NodeService service;
 
     @GET
 	@Path("{id}")
-    public Actor getById(@PathParam("id") String id) {
-        Optional<Actor> actorOp = service.findById(id);
-        return actorOp.isPresent() ? actorOp.get() : null;
+    public Node getById(@PathParam("id") Long id) {
+        Optional<Node> NodeOp = service.findById(id);
+        return NodeOp.isPresent() ? NodeOp.get() : null;
 	}
 
     @DELETE
     @Path("{id}")
-    public Response deleteById(@PathParam("id") String id) {
+    public Response deleteById(@PathParam("id") Long id) {
         Boolean deleted =
                 service.delete(id) ;
         return Response.noContent().build();
     }
     
 	@POST
-    public Actor create(@RequestBody Actor actor) {
-        Optional<Actor> savedOp = service.create(actor);
+    public Node create(@RequestBody Node Node) {
+        Optional<Node> savedOp = service.create(Node);
         return savedOp.isPresent() ? savedOp.get() : null;
     }
 	
 	@POST
 	@Path("/populate")
-    public List<Actor> populate() {
+    public List<Node> populate() {
         return service.populate() ;
     }
 	
