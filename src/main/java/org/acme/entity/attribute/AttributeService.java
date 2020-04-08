@@ -2,6 +2,7 @@ package org.acme.entity.attribute;
 
 import org.acme.entity.category.Category;
 import org.acme.entity.category.CategoryService;
+import org.acme.repository.reactive.AttributeReactiveRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -16,9 +17,7 @@ import java.util.logging.Logger;
 public class AttributeService {
 
 	@Inject
-	private AttributeRepository repo;
-	@Inject
-	private CategoryService categoryService;
+	private AttributeReactiveRepository repo;
 
 	public List<Attribute> getAll() {
 		return repo.listAll();
