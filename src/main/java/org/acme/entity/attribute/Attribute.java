@@ -24,7 +24,7 @@ public class Attribute extends PanacheEntityBase implements Serializable {
 //	@Column(name = "id", updatable = false, nullable = false)
 //	private UUID id ;//= UUID.randomUUID();
 
-	@Id @GeneratedValue
+	@Id @GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 
 	//@Column(name="key_name")
