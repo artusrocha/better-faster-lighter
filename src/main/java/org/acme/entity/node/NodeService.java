@@ -2,10 +2,12 @@ package org.acme.entity.node;
 
 import org.acme.entity.attribute.Attribute;
 import org.acme.entity.category.Category;
+import org.acme.repository.reactive.NodeReactiveRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,7 +17,7 @@ import javax.transaction.Transactional;
 public class NodeService {
 
 	@Inject
-	private NodeRepository repo;
+	private NodeReactiveRepository repo;
 
 	public List<Node> getAll() {
 		return repo.listAll();
@@ -32,18 +34,19 @@ public class NodeService {
 		southAmerAttr.add( new Attribute(language, "Spanish") );
 		southAmerAttr.stream().forEach( each -> each.persist() );
 		
-		List<Node> Nodes = new ArrayList<>();
-		Nodes.add(new Node("CO", "Colombia", southAmerAttr));
-		Nodes.add(new Node("AR", "Argentina", southAmerAttr));
-		repo.persist(Nodes);
-		return Nodes;
+		List<Node> nodes = new ArrayList<>();
+		nodes.add(new Node("CO", "Colombia", southAmerAttr));
+		nodes.add(new Node("AR", "Argentina", southAmerAttr));
+		return nodes.stream()
+				.map(node -> repo.create(node))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 	}
 
 	@Transactional
 	public Optional<Node> create(Node node) {
-		repo.persistAndFlush(node);
-		return repo.isPersistent( node ) ? Optional.of(node) :
-										   Optional.empty();
+		return repo.create(node);
 	}
 
 	public Optional<Node> findById(Long id) {
@@ -52,7 +55,7 @@ public class NodeService {
 
 	@Transactional
 	public Boolean delete(Long id) {
-		repo.deleteById(id);
-		return !repo.existsById(id);
+		repo.delete(id);
+		return !repo.exists(id);
 	}
 }

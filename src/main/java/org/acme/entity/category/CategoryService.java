@@ -1,5 +1,7 @@
 package org.acme.entity.category;
 
+import org.acme.repository.reactive.CategoryReactiveRepository;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -11,23 +13,21 @@ import java.util.Optional;
 public class CategoryService {
 
     @Inject
-    private CategoryRepository repo;
+    private CategoryReactiveRepository repo;
 
     public Optional<Category> findById(Long keyId) {
         return repo.findByIdOptional(keyId);
     }
 
     public List<Category> getAll() {
-        return repo.findAll().list();
+        return repo.listAll();
     }
 
     @Transactional
     public Optional<Category> create(Category category) {
         if ( ! repo.existsByName( category.getName() ) ) {
             try{
-                repo.persist(category);
-                if( repo.isPersistent(category) )
-                    return Optional.ofNullable(category);
+                return repo.create(category);
             }
             catch(Exception e) { e.printStackTrace(); }
         }

@@ -23,6 +23,13 @@ public class AttributeReactiveRepository {
     @Inject
     private MySQLPool client;
 
+    private final static String SQL_FIND_BY_NODE_ID = new StringBuilder()
+        .append("SELECT a.id, a.value, c.id AS key_id, c.name AS key_name ")
+        .append("FROM Attribute a INNER JOIN Category c ON a.key_id=c.id ")
+        .append("WHERE a.id = ? ")
+        .append("ORDER BY id ASC")
+        .toString();
+
     public Boolean exists(Category category, String value) {
         return existsUni(category, value).await().indefinitely();
     }
@@ -68,19 +75,34 @@ public class AttributeReactiveRepository {
         return findAllMulti().collectItems().asList().await().indefinitely();
     }
 
-    public Multi<Attribute> findAllMulti() {
-        final String sql = new StringBuilder()
-                .append("SELECT a.id, a.value, c.id AS key_id, c.name AS key_name ")
-                .append("FROM Attribute a ")
-                .append("INNER JOIN Category c ON a.key_id=c.id ")
-                .append("ORDER BY value ASC")
-                .toString();
-        return client.query(sql)
+    public List<Attribute> findAllByNodeId(Long id) {
+        return findAllByNodeIdMulti(id)
+                .collectItems().asList().await().indefinitely();
+    }
+
+    public Multi<Attribute> findAllByNodeIdMulti(Long id) {
+        System.out.println(SQL_FIND_BY_NODE_ID);
+        return client.preparedQuery( SQL_FIND_BY_NODE_ID, Tuple.of(id) )
                 .onItem()
                 .produceMulti(set -> Multi.createFrom().items(() -> {
                     return StreamSupport.stream(set.spliterator(), false);
-                }))
-                .onItem().apply(this::from); // For each row create a attr instance
+                })).onItem().apply(AttributeReactiveRepository::from); // For each row create a attr instance
+    }
+
+    public Multi<Attribute> findAllMulti() {
+        return findAllByNodeIdMulti(1L);
+//        final String sql = new StringBuilder()
+//                .append("SELECT a.id, a.value, c.id AS key_id, c.name AS key_name ")
+//                .append("FROM Attribute a ")
+//                .append("INNER JOIN Category c ON a.key_id=c.id ")
+//                .append("ORDER BY value ASC")
+//                .toString();
+//        return client.query(sql)
+//                .onItem()
+//                .produceMulti(set -> Multi.createFrom().items(() -> {
+//                    return StreamSupport.stream(set.spliterator(), false);
+//                }))
+//                .onItem().apply(this::from); // For each row create a attr instance
     }
 
     public Multi<Attribute> findAllInMulti(Collection<Long> ids) {
@@ -95,7 +117,7 @@ public class AttributeReactiveRepository {
         return client.preparedQuery( sql, ids_params )
                 .onItem().produceMulti(set -> Multi.createFrom().items(() -> {
                     return StreamSupport.stream(set.spliterator(), false);
-                })).onItem().apply(this::from); // For each row create a attr instance
+                })).onItem().apply(AttributeReactiveRepository::from); // For each row create a attr instance
     }
 
     private String placeholders(int size) {
@@ -107,7 +129,6 @@ public class AttributeReactiveRepository {
     }
 
     public Uni<Attribute> reactFindById(Long id) {
-        System.out.println(">>>>>>>>>>> "+id);
         final String sql = new StringBuilder()
                 .append("SELECT a.id, a.value, c.id AS key_id, c.name AS key_name ")
                 .append("FROM Attribute a ")
@@ -119,16 +140,15 @@ public class AttributeReactiveRepository {
                 .onItem().apply(iterator -> iterator.hasNext() ? from(iterator.next()) : null);
     }
 
-    private Attribute from(Row row) {
+    static Attribute from(Row row) {
         final Attribute obj = new Attribute();
         obj.setId(row.getLong("id"));
         obj.setValue(row.getString("value"));
         obj.setKey( rowToCategory(row) );
-        System.out.println( obj );
         return obj;
     }
 
-    private Category rowToCategory(Row row) {
+    private static Category rowToCategory(Row row) {
         final Category cat = new Category();
         cat.setId(row.getLong("key_id"));
         cat.setName(row.getString("key_name"));
@@ -141,8 +161,9 @@ public class AttributeReactiveRepository {
 
     public Optional<Attribute> create(Attribute attribute) {
         Optional<Attribute> saved = createUni(attribute).await().asOptional().indefinitely();
-        if(saved.isPresent())
-           attribute = saved.get();
+        if(saved.isPresent()) {
+            attribute = saved.get();
+        }
         return saved;
     }
 

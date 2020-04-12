@@ -2,6 +2,7 @@ package org.acme.api;
 
 import org.acme.entity.attribute.Attribute;
 import org.acme.entity.attribute.AttributeService;
+import org.acme.entity.category.Category;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
@@ -33,13 +34,15 @@ public class AttributeResource {
 	@POST
     public Response create(@RequestBody Attribute attribute) {
         Optional<Attribute> savedOp = service.create(attribute);
-        return savedOp.isPresent() ? Response.ok( savedOp.get() ).build() :
-                                     Response.status( Response.Status.CONFLICT).build();
+        return savedOp.isPresent() ? Response.status(Response.Status.CREATED).entity(savedOp.get()).build() :
+                                     Response.status(Response.Status.CONFLICT).build();
     }
 
     @GET
     public Response getAllPosts() {
-        return Response.ok( this.service.getAll() ).build();
+        List<Attribute> items = service.getAll();
+        return items.size() > 0 ? Response.ok( items ).build() :
+                                  Response.status( Response.Status.NOT_FOUND ).build();
     }
 
     @GET

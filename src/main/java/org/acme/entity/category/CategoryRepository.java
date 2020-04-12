@@ -3,6 +3,7 @@ package org.acme.entity.category;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Optional;
 
 
 @ApplicationScoped
@@ -19,5 +20,12 @@ public class CategoryRepository implements PanacheRepositoryBase<Category, Long>
 
     public Boolean exists(Long categoryId) {
         return this.count("id", categoryId) > 0;
+    }
+
+    public Optional<Category> create(Category category) {
+        this.persist(category);
+        if( this.isPersistent(category) )
+            return this.findByIdOptional(category.getId());
+        return Optional.empty();
     }
 }

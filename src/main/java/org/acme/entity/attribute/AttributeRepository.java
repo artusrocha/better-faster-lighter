@@ -25,15 +25,6 @@ public class AttributeRepository implements PanacheRepositoryBase<Attribute, Lon
         return this.count("id=?1", id) > 0 ;
     }
 
-//    public Optional<Attribute> findByGuid(UUID guid) {
-//        List<Attribute> attr = em.createQuery("FROM Attribute WHERE guid = :guid", Attribute.class)
-//                .setParameter("guid", guid).getResultList();
-//
-//        System.out.println("guid: "+guid.toString());
-//        System.out.println("value: "+attr.get(0).getValue() );
-//        return Optional.ofNullable( attr.get(0) );
-//    }
-
     public Optional<Attribute> findByValue(String v) {
         System.out.println("Value: "+v);
         return this.find("value",v).firstResultOptional() ;
