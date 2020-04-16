@@ -17,7 +17,17 @@ import javax.transaction.Transactional;
 public class NodeService {
 
 	@Inject
-	private NodeReactiveRepository repo;
+	private NodeRepository repo;
+
+        @Inject
+	private NodeReactiveRepository reactRepo;
+        
+        @ConfigProperty(name = "reactive.repository.enabled")
+        private Optional<Boolean> reactiveRepo; 
+
+        private NodeRepo getRepo() {
+            return reactiveRepo.orElse(Boolean.FALSE) ? reactRepo : repo;
+        }
 
 	public List<Node> getAll() {
 		return repo.listAll();
