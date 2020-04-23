@@ -125,10 +125,10 @@ public class AttributeReactiveRepository {
     }
 
     public Optional<Attribute> findByIdOptional(Long id) {
-        return reactFindById(id).await().asOptional().indefinitely();// .map( attr -> Optional.of(attr) );
+        return findByIdUni(id).await().asOptional().indefinitely();// .map( attr -> Optional.of(attr) );
     }
 
-    public Uni<Attribute> reactFindById(Long id) {
+    public Uni<Attribute> findByIdUni(Long id) {
         final String sql = new StringBuilder()
                 .append("SELECT a.id, a.value, c.id AS key_id, c.name AS key_name ")
                 .append("FROM Attribute a ")
@@ -174,7 +174,7 @@ public class AttributeReactiveRepository {
                 .onItem()
                 .apply( rows -> rows.property(MySQLClient.LAST_INSERTED_ID))
                 .onItem()
-                .apply( this::reactFindById )
+                .apply( this::findByIdUni )
                 .await().indefinitely();
     }
 }

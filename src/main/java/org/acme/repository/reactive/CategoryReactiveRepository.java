@@ -8,6 +8,7 @@ import io.vertx.mutiny.sqlclient.Row;
 import io.vertx.mutiny.sqlclient.RowSet;
 import io.vertx.mutiny.sqlclient.Tuple;
 import org.acme.entity.category.Category;
+import org.acme.entity.category.CategoryRepo;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @ApplicationScoped
-public class CategoryReactiveRepository {
+public class CategoryReactiveRepository implements CategoryRepo {
 
     @Inject
     private MySQLPool client;
