@@ -1,36 +1,34 @@
 package org.acme.entity.node;
 
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import org.acme.entity.attribute.Attribute;
 import org.acme.entity.category.Category;
 import org.acme.repository.reactive.NodeReactiveRepository;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 @ApplicationScoped
-public class NodeService {
+public class NodeReactiveService {
 
 	@Inject
-	private NodeRepository repo;
+	private NodeReactiveRepository repo;
 
-        @Inject
-	private NodeReactiveRepository reactRepo;
-        
-        @ConfigProperty(name = "reactive.repository.enabled")
-        private Optional<Boolean> reactiveRepo; 
+//        @ConfigProperty(name = "reactive.repository.enabled")
+//        private Optional<Boolean> reactiveRepo;
+//
+//        private NodeRepo getRepo() {
+//            return reactiveRepo.orElse(Boolean.FALSE) ? reactRepo : repo;
+//        }
 
-        private NodeRepo getRepo() {
-            return reactiveRepo.orElse(Boolean.FALSE) ? reactRepo : repo;
-        }
-
-	public List<Node> getAll() {
-		return repo.listAll();
+	public Multi<Node> getAll() {
+		return repo.findAllMulti();
 	}
 
 	@Transactional
@@ -59,8 +57,8 @@ public class NodeService {
 		return repo.create(node);
 	}
 
-	public Optional<Node> findById(Long id) {
-		return repo.findByIdOptional(id);
+	public Uni<Node> findById(Long id) {
+		return repo.findByIdUni(id);
 	}
 
 	@Transactional

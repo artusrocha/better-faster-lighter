@@ -1,35 +1,30 @@
 package org.acme.entity.category;
 
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
-import org.acme.FF4JConfig;
 import org.acme.repository.reactive.CategoryReactiveRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 
 @ApplicationScoped
-public class CategoryReactiveService {
+public class CategoryService {
 
     @Inject
-    private CategoryReactiveRepository repo;
+    private CategoryRepository repo;
 
-    @Inject
-    private FF4JConfig ffConfig;
-
-    private CategoryReactiveRepository getRepo() {
+    private CategoryRepository getRepo() {
         return repo;
     }
 
-    public Uni<Category> findById(Long keyId) {
-        return getRepo().findByIdUni(keyId);
+    public Optional<Category> findById(Long keyId) {
+        return getRepo().findByIdOptional(keyId);
     }
 
-    public Multi<Category> getAll() {
-        return getRepo().findAllMulti();
+    public List<Category> getAll() {
+        return getRepo().listAll();
     }
 
     @Transactional

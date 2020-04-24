@@ -13,21 +13,25 @@ import java.util.Optional;
 public class CategoryService {
 
     @Inject
-    private CategoryReactiveRepository repo;
+    private CategoryRepository repo;
+
+    private CategoryRepository getRepo() {
+        return repo;
+    }
 
     public Optional<Category> findById(Long keyId) {
-        return repo.findByIdOptional(keyId);
+        return getRepo().findByIdOptional(keyId);
     }
 
     public List<Category> getAll() {
-        return repo.listAll();
+        return getRepo().listAll();
     }
 
     @Transactional
     public Optional<Category> create(Category category) {
-        if ( ! repo.existsByName( category.getName() ) ) {
+        if ( ! getRepo().existsByName( category.getName() ) ) {
             try{
-                return repo.create(category);
+                return getRepo().create(category);
             }
             catch(Exception e) { e.printStackTrace(); }
         }
@@ -37,10 +41,10 @@ public class CategoryService {
     @Transactional
     public Boolean delete(Long categoryId) {
         try {
-            repo.delete(categoryId);
+            getRepo().delete(categoryId);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return !repo.exists(categoryId);
+        return !getRepo().exists(categoryId);
     }
 }
